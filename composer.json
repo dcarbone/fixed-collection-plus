@@ -1,0 +1,39 @@
+{
+    "name" : "dcarbone/fixed-collection-plus",
+    "type" : "library",
+    "description" : "A powerful Fixed Collection class inspired by the PHP community",
+
+    "keywords": [
+        "php",
+        "Collection",
+        "collection",
+        "ArrayObject",
+        "arrayobject",
+        "SplFixedArray",
+        "splfixedarray",
+        "fixedarray"
+    ],
+    "homepage": "https://github.com/dcarbone/fixed-collection-plus",
+    "license": "MIT",
+
+    "authors" : [
+        {
+            "name" : "Daniel Carbone",
+            "email" : "daniel.p.carbone@gmail.com"
+        }
+    ],
+
+    "require" : {
+        "php" : ">=5.3.3"
+    },
+
+    "require-dev" : {
+        "phpunit/phpunit": ">=4.1 <5.0.0"
+    },
+
+    "autoload" : {
+        "psr-4" : {
+            "DCarbone\\CollectionPlus\\" : "src/"
+        }
+    }
+}
