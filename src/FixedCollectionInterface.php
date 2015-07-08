@@ -7,11 +7,6 @@
 interface FixedCollectionInterface
 {
     /**
-     * @return array
-     */
-    public function __toArray();
-
-    /**
      * Append a value
      *
      * @param mixed $value

@@ -56,3 +56,5 @@ composer.lock
 phpunit.bat
 phpunit.local.xml
 phpunit.sh
+index.php
+test-reports

@@ -33,7 +33,7 @@
 
     "autoload" : {
         "psr-4" : {
-            "DCarbone\\CollectionPlus\\" : "src/"
+            "DCarbone\\" : "src/"
         }
     }
 }

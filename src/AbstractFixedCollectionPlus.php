@@ -4,99 +4,8 @@
  * Class AbstractFixedCollectionPlus
  * @package DCarbone
  */
-class AbstractFixedCollectionPlus extends \SplFixedArray implements FixedCollectionInterface
+abstract class AbstractFixedCollectionPlus extends \SplFixedArray implements FixedCollectionInterface
 {
-    /** @var int */
-    private $size = 0;
-
-    /**
-     * @param int $size
-     * @throws \InvalidArgumentException
-     */
-    public function __construct($size = 0)
-    {
-        if (!is_int($size))
-            throw new \InvalidArgumentException('SplFixedArray::__construct() expects parameter 1 to be long, string given');
-
-        parent::__construct($size);
-        $this->size = $size;
-    }
-
-    /**
-     * @param array $array
-     * @param bool $save_indexes
-     * @throws \InvalidArgumentException
-     * @return AbstractFixedCollectionPlus
-     */
-    public static function fromArray($array, $save_indexes = true)
-    {
-        /** @var \DCarbone\AbstractFixedCollectionPlus $new  */
-        if (!is_array($array))
-            throw new \InvalidArgumentException('SplFixedArray::fromArray - "$array" must be an array, "'.gettype($array).'" given');
-
-        if (!is_bool($save_indexes))
-            throw new \InvalidArgumentException('SplFixedArray::fromArray - "$save_indexes" must be a boolean, "'.gettype($save_indexes).'" given');
-
-        $count = count($array);
-
-        // If an empty array is seen
-        if ($count === 0)
-            return new static;
-
-        // If they have elected to NOT save indexes
-        if (!$save_indexes)
-        {
-            $new = new static($count);
-            $i = 0;
-            while(key($array) !== null && ($current = current($array)) !== false)
-            {
-                $new[$i++] = $current;
-                next($array);
-            }
-
-            return $new;
-        }
-
-        // If they DO want to preserve indexes
-
-        // First, get array of keys, sort, and get last (largest) value
-        $keys = array_keys($array);
-        sort($keys);
-        $last = end($keys);
-
-        // If the last value is non-int or non-float, go ahead and throw exception
-        if (!is_int($last) && !is_float($last))
-            throw new \InvalidArgumentException('SplFixedArray::fromArray - array must contain only positive integer keys');
-
-        // Create new instance
-        $new = new static(($last > $count) ? $last + 1 : $count);
-
-        // Populate instance.
-        while(($key = key($array)) !== null && ($current = current($array)) !== false)
-        {
-            switch(true)
-            {
-                case (is_int($key)) :
-                    $new[$key] = $current;
-                    break;
-
-                default :
-                    throw new \InvalidArgumentException('SplFixedArray::fromArray - array must contain only positive integer keys');
-            }
-            next($array);
-        }
-
-        return $new;
-    }
-
-    /**
-     * @return array
-     */
-    public function __toArray()
-    {
-        return parent::toArray();
-    }
-
     /**
      * Append a value
      *
@@ -105,26 +14,9 @@ class AbstractFixedCollectionPlus extends \SplFixedArray implements FixedCollect
      */
     public function append($value)
     {
-        $this->setSize(++$this->size);
-        $this->offsetSet(($this->size - 1), $value);
-    }
-
-    /**
-     * @param int $size
-     * @throws \InvalidArgumentException
-     * @return int
-     */
-    public function setSize($size)
-    {
-        if (!is_int($size))
-            throw new \InvalidArgumentException('SplFixedArray::setSize() expects parameter 1 to be long, '.gettype($size).' given');
-
-        if ($size < 0)
-            throw new \InvalidArgumentException('SplFixedArray::setSize() expects parameter 1 to be positive, negative value given');
-
-        $return = parent::setSize($size);
-        $this->size = $size;
-        return $return;
+        $size = count($this);
+        $this->setSize($size + 1);
+        $this->offsetSet($size, $value);
     }
 
     /**
@@ -135,10 +27,9 @@ class AbstractFixedCollectionPlus extends \SplFixedArray implements FixedCollect
      */
     public function contains($element)
     {
-        $currentSize = $this->getSize();
-        for($i = 0; $i < $currentSize; $i++)
+        foreach($this as $v)
         {
-            if ($this[$i] === $element)
+            if ($v === $element)
                 return true;
         }
 
@@ -154,33 +45,35 @@ class AbstractFixedCollectionPlus extends \SplFixedArray implements FixedCollect
      */
     public function exists($func)
     {
-        if (!is_callable($func, false, $callable_name))
-            throw new \InvalidArgumentException(get_class($this).'::exists - Un-callable "$func" value seen!');
-
-        // Get the current size of this collection
-        $currentSize = $this->getSize();
-
-        // If this is a method on an object (except for \Closure), parse and continue
-        if (strpos($callable_name, '::') !== false && strpos($callable_name, 'Closure') === false)
+        if (is_callable($func, false, $callable_name))
         {
-            $exp = explode('::', $callable_name);
-            for ($i = 0; $i < $currentSize; $i++)
+            // If this is a method on an object (except for \Closure), parse and continue
+            if (strpos($callable_name, '::') !== false && strpos($callable_name, 'Closure') === false)
             {
-                if ($exp[0]::$exp[1]($this[$i]) === true)
-                    return true;
+                $exp = explode('::', $callable_name);
+                foreach($this as $v)
+                {
+                    if ($exp[0]::$exp[1]($v))
+                        return true;
+                }
             }
-        }
-        // Else, execute raw $func value as function
-        else
-        {
-            for ($i = 0; $i < $currentSize; $i++)
+            // Else, execute raw $func value as function
+            else
             {
-                if ($func($this[$i]) === true)
-                    return true;
+                foreach($this as $v)
+                {
+                    if ($func($v))
+                        return true;
+                }
             }
+
+            return false;
         }
 
-        return false;
+        throw new \InvalidArgumentException(vsprintf(
+            '%s::exists - Un-callable "$func" value seen.',
+            array(get_class($this)))
+        );
     }
 
     /**
@@ -196,33 +89,33 @@ class AbstractFixedCollectionPlus extends \SplFixedArray implements FixedCollect
      */
     public function map($func)
     {
-        if (!is_callable($func, false, $callable_name))
-            throw new \InvalidArgumentException(get_class($this).'::map - Un-callable "$func" value seen!');
-
-        /** @var \DCarbone\AbstractFixedCollectionPlus $new */
-        $currentSize = $this->getSize();
-
-        // Create new instance
-        $new = new static($currentSize);
-
-        // If this is a method on an object (except for \Closure), parse and continue
-        if (strpos($callable_name, '::') !== false && strpos($callable_name, 'Closure') === false)
+        if (is_callable($func, false, $callable_name))
         {
-            $exp = explode('::', $callable_name);
-            for($i = 0; $i < $currentSize; $i++)
+            /** @var \DCarbone\AbstractFixedCollectionPlus $new */
+            // Create new instance
+            $new = new static(parent::getSize());
+
+            // If this is a method on an object (except for \Closure), parse and continue
+            if (strpos($callable_name, '::') !== false && strpos($callable_name, 'Closure') === false)
             {
-                $new[$i] = $exp[0]::$exp[1]($this[$i]);
+                $exp = explode('::', $callable_name);
+                foreach($this as $i=>$v)
+                {
+                    $new[$i] = $exp[0]::$exp[1]($v);
+                }
             }
-        }
-        else
-        {
-            for($i = 0; $i < $currentSize; $i++)
+            else
             {
-                $new[$i] = $func($this[$i]);
+                foreach($this as $i=>$v)
+                {
+                    $new[$i] = $func($v);
+                }
             }
+
+            return $new;
         }
 
-        return $new;
+        throw new \InvalidArgumentException(get_class($this).'::map - Un-callable "$func" value seen!');
     }
 
     /**
@@ -240,45 +133,46 @@ class AbstractFixedCollectionPlus extends \SplFixedArray implements FixedCollect
      */
     public function filter($func = null)
     {
-        if ($func !== null && !is_callable($func, false, $callable_name))
-            throw new \InvalidArgumentException(get_class($this).'::filter - Un-callable "$func" value seen!');
-
-        /** @var \DCarbone\AbstractFixedCollectionPlus $new */
-        $currentSize = $this->getSize();
-        $new = new static($currentSize);
+        $new = new static(parent::getSize());
         $newSize = 0;
-
-        if ($func !== null && isset($callable_name))
+        if (null === $func)
+        {
+            foreach($this as $i=>$v)
+            {
+                if ($v)
+                    $new[$newSize++] = $v;
+            }
+        }
+        else if (is_callable($func, false, $callable_name))
         {
             // If this is a method on an object (except for \Closure), parse and continue
             if (strpos($callable_name, '::') !== false && strpos($callable_name, 'Closure') === false)
             {
                 $exp = explode('::', $callable_name);
-                for($i = 0; $i < $currentSize; $i++)
+                foreach($this as $i=>$v)
                 {
-                    if ((bool)$exp[0]::$exp[1]($this[$i]) === true)
-                        $new[$newSize++] = $this[$i];;
+                    if ($exp[0]::$exp[1]($v))
+                        $new[$newSize++] = $v;
                 }
             }
             else
             {
-                for ($i = 0; $i < $currentSize; $i++)
+                foreach($this as $i=>$v)
                 {
-                    if ((bool)$func($this[$i]) !== false)
-                        $new[$newSize++] = $this[$i];
+                    if ($func($v))
+                        $new[$newSize++] = $v;
                 }
             }
         }
         else
         {
-            for ($i = 0; $i < $currentSize; $i++)
-            {
-                if ((bool)$this[$i] !== false)
-                    $new[$newSize++] = $this[$i];
-            }
+            throw new \InvalidArgumentException(vsprintf(
+                '%s::filter - Argument 1 expected to be null or callable.',
+                array(get_class($this))
+            ));
         }
-        $new->setSize($newSize);
 
+        $new->setSize($newSize);
         return $new;
     }
 
@@ -290,13 +184,11 @@ class AbstractFixedCollectionPlus extends \SplFixedArray implements FixedCollect
      */
     public function indexOf($value)
     {
-        $currentSize = $this->getSize();
-        for ($i = 0; $i < $currentSize; $i++)
+        foreach($this as $i=>$v)
         {
-            if ($this[$i] === $value)
+            if ($value === $v)
                 return $i;
         }
-
         return -1;
     }
 
@@ -307,7 +199,7 @@ class AbstractFixedCollectionPlus extends \SplFixedArray implements FixedCollect
      */
     public function isEmpty()
     {
-        return $this->size === 0;
+        return count($this) === 0;
     }
 
     /**

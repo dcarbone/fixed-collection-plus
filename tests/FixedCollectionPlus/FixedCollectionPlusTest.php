@@ -495,7 +495,7 @@ class FixedCollectionPlusTest extends PHPUnit_Framework_TestCase
      * @covers \DCarbone\AbstractFixedCollectionPlus::map
      * @covers \DCarbone\AbstractFixedCollectionPlus::offsetSet
      * @uses \DCarbone\AbstractFixedCollectionPlus
-     * @uses \MySuperAwesomeCollectionClass
+     * @uses \MySuperAwesomeFixedCollectionClass
      */
     public function testMapWithAnonymousFunctionReturnsInstanceOfExtendedClass()
     {
@@ -575,7 +575,7 @@ class FixedCollectionPlusTest extends PHPUnit_Framework_TestCase
      * @covers \DCarbone\AbstractFixedCollectionPlus::offsetSet
      * @covers \DCarbone\AbstractFixedCollectionPlus::count
      * @uses \DCarbone\AbstractFixedCollectionPlus
-     * @uses \CollectionPlusTests
+     * @uses \FixedCollectionPlusTests
      */
     public function testFilterWithObjectStaticFunction()
     {
@@ -590,7 +590,7 @@ class FixedCollectionPlusTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(10, count($fixedCollection));
 
-        $filtered = $fixedCollection->filter(array('CollectionPlusTests', '_collection_filter_remove_true_values'));
+        $filtered = $fixedCollection->filter(array('FixedCollectionPlusTests', '_collection_filter_remove_true_values'));
         $this->assertEquals(5, count($filtered));
         $this->assertNotContains(true, $filtered);
     }
