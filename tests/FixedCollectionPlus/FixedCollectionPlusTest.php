@@ -2,8 +2,8 @@
 
 date_default_timezone_set('UTC');
 
-require_once realpath(dirname(__DIR__).'/misc/functions.php');
-require_once realpath(dirname(__DIR__).'/misc/classes.php');
+require __DIR__.'/../misc/functions.php';
+require __DIR__.'/../misc/classes.php';
 
 /**
  * Class FixedCollectionPlusTest
@@ -40,16 +40,6 @@ class FixedCollectionPlusTest extends PHPUnit_Framework_TestCase
             $fixedCollection);
 
         $this->assertEquals(5, $fixedCollection->getSize());
-    }
-
-    /**
-     * @covers \DCarbone\AbstractFixedCollectionPlus::__construct
-     * @uses \DCarbone\AbstractFixedCollectionPlus
-     * @expectedException \InvalidArgumentException
-     */
-    public function testExceptionThrownWhenTryingToConstructCollectionWithInvalidParameter()
-    {
-        $fixedCollection = new \DCarbone\FixedCollectionPlus('sandwiches');
     }
 
     /**
@@ -236,18 +226,6 @@ class FixedCollectionPlusTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(50, $fixedCollection->getSize());
         $fixedCollection->setSize(25);
         $this->assertEquals(25, $fixedCollection->getSize());
-    }
-
-    /**
-     * @covers \DCarbone\AbstractFixedCollectionPlus::__construct
-     * @covers \DCarbone\AbstractFixedCollectionPlus::setSize
-     * @uses \DCarbone\AbstractFixedCollectionPlus
-     * @expectedException \InvalidArgumentException
-     */
-    public function testExceptionThrownWhenSettingSizeOfCollectionWithNonIntegerParameter()
-    {
-        $fixedCollection = new \DCarbone\FixedCollectionPlus(25);
-        $fixedCollection->setSize('sandwich');
     }
 
     /**
@@ -547,7 +525,7 @@ class FixedCollectionPlusTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(10, count($fixedCollection));
 
-        $filtered = $fixedCollection->filter('_collection_filter_remove_true_values');
+        $filtered = $fixedCollection->filter('_fixed_collection_filter_remove_true_values');
         $this->assertEquals(5, count($filtered));
         $this->assertNotContains(true, $filtered);
     }
@@ -573,7 +551,7 @@ class FixedCollectionPlusTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(10, count($fixedCollection));
 
-        $filtered = $fixedCollection->filter(array('FixedCollectionPlusTests', '_collection_filter_remove_true_values'));
+        $filtered = $fixedCollection->filter(array('FixedCollectionPlusTests', '_fixed_collection_filter_remove_true_values'));
         $this->assertEquals(5, count($filtered));
         $this->assertNotContains(true, $filtered);
     }
