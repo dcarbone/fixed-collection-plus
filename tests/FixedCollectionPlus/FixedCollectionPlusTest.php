@@ -160,23 +160,6 @@ class FixedCollectionPlusTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \DCarbone\AbstractFixedCollectionPlus::__toArray
-     * @uses \DCarbone\AbstractFixedCollectionPlus
-     */
-    public function testToArrayMethod()
-    {
-        $fixedCollection = new \DCarbone\FixedCollectionPlus(5);
-        $this->assertTrue(
-            method_exists($fixedCollection, '__toArray'),
-            '::__toArray not defined');
-
-        $array = $fixedCollection->__toArray();
-        $this->assertTrue(
-            is_array($array),
-            '::__toArray returned non-array value');
-    }
-
-    /**
      * @covers \DCarbone\AbstractFixedCollectionPlus::__construct
      * @covers \DCarbone\AbstractFixedCollectionPlus::getSize
      * @covers \DCarbone\AbstractFixedCollectionPlus::append

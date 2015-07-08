@@ -7,6 +7,89 @@
 abstract class AbstractFixedCollectionPlus extends \SplFixedArray implements FixedCollectionInterface
 {
     /**
+     * @param array $array
+     * @param bool $save_indexes
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @return AbstractFixedCollectionPlus
+     */
+    public static function fromArray($array, $save_indexes = true)
+    {
+        if (is_array($array) && is_bool($save_indexes))
+        {
+            $count = count($array);
+
+            // If an empty array is seen
+            if ($count === 0)
+                return new static;
+
+            // If they have elected to NOT save indexes
+            if (!$save_indexes)
+            {
+                $new = new static($count);
+                $i = 0;
+                foreach($array as $v)
+                {
+                    $new[$i++] = $v;
+                }
+
+                return $new;
+            }
+
+            // If they DO want to preserve indexes
+
+            // First, get array of keys, sort, and get last (largest) value
+            $keys = array_keys($array);
+            sort($keys);
+            $last = end($keys);
+
+            // If the last value is non-int or non-float, go ahead and throw exception
+            if (!is_int($last) && !is_float($last))
+                throw new \InvalidArgumentException('SplFixedArray::fromArray - array must contain only positive integer keys');
+
+            // Create new instance
+            $new = new static(($last > $count) ? $last + 1 : $count);
+
+            // Populate instance.
+            foreach($array as $key=>$value)
+            {
+                switch(true)
+                {
+                    case (is_int($key)) :
+                        $new[$key] = $value;
+                        break;
+
+                    default :
+                        throw new \InvalidArgumentException('SplFixedArray::fromArray - array must contain only positive integer keys');
+                }
+            }
+
+            return $new;
+        }
+
+        /** @var \DCarbone\AbstractFixedCollectionPlus $new  */
+        if (!is_array($array))
+        {
+            throw new \InvalidArgumentException(vsprintf(
+                '%s::fromArray - Argument 1 expected to be array, "%s" seen.',
+                array(get_called_class(), gettype($array)))
+            );
+        }
+
+        if (!is_bool($save_indexes))
+        {
+            throw new \InvalidArgumentException(vsprintf(
+                '%s::fromArray - Argument 2 expected to be boolean, "%s" seen.',
+                array(get_called_class(), gettype($save_indexes)))
+            );
+        }
+
+        throw new \RuntimeException(vsprintf('%s::fromArray - Unable to construct object.',
+            array(get_called_class()))
+        );
+    }
+
+    /**
      * Append a value
      *
      * @param mixed $value
