@@ -2,8 +2,7 @@
 
 This class is an extension of the built-in [SplFixedArray](http://php.net/manual/en/class.splfixedarray.php) class.
 
-It is designed to provide similar functionality to the [AbstractCollectionPlus](COLLECTION.md) class, while taking advantage of the performance
-and memory usage benefits of the SplFixedArray class
+It is designed to provide similar functionality to the [CollectionPlus](https://github.com/dcarbone/collection-plus) library, while taking advantage of the performance and memory usage benefits of the SplFixedArray class
 
 ## Basics
 
