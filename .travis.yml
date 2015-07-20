@@ -1,5 +1,7 @@
 language: php
 
+sudo: false
+
 php:
   - 5.3.3
   - 5.3
@@ -9,8 +11,7 @@ php:
 
 before_script:
   - composer self-update
-  - composer update --prefer-source
-  - composer install --no-interaction --dev --prefer-source
+  - composer install --no-interaction --prefer-source
 
 script:
   - ./vendor/bin/phpunit
